@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./backend:/app
+      - /app/node_modules  # Exclusion de node_modules
+    environment:
+      - NODE_ENV=development
+      - DB_USER=root
+      - DB_HOST=database
+      - DB_NAME=ecommerce
+      - DB_PASSWORD=tpdocker
+      - DB_PORT=3306
+    depends_on:
+      - database
+
+  frontend:
+    build: ./frontend
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # Exclusion de node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ecommerce-site-phpmyadmin
+    environment:
+      PMA_HOST: database
+      PMA_USER: root
+      PMA_PASSWORD: tpdocker
+    ports:
+     - "8080:80"
+    depends_on:
+     - database
+
+
+  database:
+    image: mysql:latest
+    container_name: ecommerce-site-database-1
+    environment:
+      MYSQL_ROOT_PASSWORD: tpdocker
+      MYSQL_DATABASE: ecommerce
+     # MYSQL_USER: root
+      MYSQL_PASSWORD: tpdocker
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data: {}
